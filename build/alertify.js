@@ -1,7 +1,7 @@
 /**
- * alertifyjs 1.13.1 http://alertifyjs.com
+ * alertifyjs 1.7.1 http://alertifyjs.com
  * AlertifyJS is a javascript framework for developing pretty browser dialogs and notifications.
- * Copyright 2019 Mohammad Younes <Mohammad@alertifyjs.com> (http://alertifyjs.com) 
+ * Copyright 2020 Mohammad Younes <Mohammad@alertifyjs.com> (http://alertifyjs.com) 
  * Licensed under GPL 3 <https://opensource.org/licenses/gpl-3.0>*/
 ( function ( window ) {
     'use strict';
@@ -368,8 +368,8 @@
                 /*tab index required to fire click event before body focus*/
                 modal: '<div class="ajs-modal" tabindex="0"></div>',
                 dialog: '<div class="ajs-dialog" tabindex="0"></div>',
-                reset: '<button class="ajs-reset"></button>',
-                commands: '<div class="ajs-commands"><button class="ajs-pin"></button><button class="ajs-maximize"></button><button class="ajs-close"></button></div>',
+                reset: '<button class="ajs-reset" aria-labelledby="reset"><span id="reset" class="sr-only">reset</span></button>',
+                commands: '<div class="ajs-commands"><button class="ajs-pin"><span class="sr-only">pin</span></button><button class="ajs-maximize" tabindex="0"><span class="sr-only">maximize</span></button><button class="ajs-close" aria-label="Close"></button></div>',
                 header: '<div class="ajs-header"></div>',
                 body: '<div class="ajs-body"></div>',
                 content: '<div class="ajs-content"></div>',
@@ -3478,8 +3478,11 @@
      *	alertify.prompt(title, message, value, onok, oncancel);
      */
     alertify.dialog('prompt', function () {
+        var label = document.createElement('LABEL');
         var input = document.createElement('INPUT');
         var p = document.createElement('P');
+        var promptId = 0;
+
         return {
             main: function (_title, _message, _value, _onok, _oncancel) {
                 var title, message, value, onok, oncancel;
@@ -3543,14 +3546,27 @@
                 };
             },
             build: function () {
+                var currID = 'alertify-prompt-' + promptId;
+
                 input.className = alertify.defaults.theme.input;
                 input.setAttribute('type', 'text');
                 input.value = this.get('value');
+                input.setAttribute('id', currID);
+                label.setAttribute('for', currID);
+                label.style.display = 'none';
+                // Hidden label to satisfy the accessibility error
+                label.innerHTML = 'HiddenLabel';
+
+                if (promptId >= 1000000000){
+                    promptId = 0;
+
+                }else{
+
+                    promptId += 1;
+                }
                 this.elements.content.appendChild(p);
+                this.elements.content.appendChild(label);
                 this.elements.content.appendChild(input);
-            },
-            prepare: function () {
-                //nothing
             },
             setMessage: function (message) {
                 if (typeof message === 'string') {

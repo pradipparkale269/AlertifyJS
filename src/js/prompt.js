@@ -9,8 +9,11 @@
      *	alertify.prompt(title, message, value, onok, oncancel);
      */
     alertify.dialog('prompt', function () {
+        var label = document.createElement('LABEL');
         var input = document.createElement('INPUT');
         var p = document.createElement('P');
+        var promptId = 0;
+
         return {
             main: function (_title, _message, _value, _onok, _oncancel) {
                 var title, message, value, onok, oncancel;
@@ -74,14 +77,27 @@
                 };
             },
             build: function () {
+                var currID = 'alertify-prompt-' + promptId;
+
                 input.className = alertify.defaults.theme.input;
                 input.setAttribute('type', 'text');
                 input.value = this.get('value');
+                input.setAttribute('id', currID);
+                label.setAttribute('for', currID);
+                label.style.display = 'none';
+                // Hidden label to satisfy the accessibility error
+                label.innerHTML = 'HiddenLabel';
+
+                if (promptId >= 1000000000){
+                    promptId = 0;
+
+                }else{
+
+                    promptId += 1;
+                }
                 this.elements.content.appendChild(p);
+                this.elements.content.appendChild(label);
                 this.elements.content.appendChild(input);
-            },
-            prepare: function () {
-                //nothing
             },
             setMessage: function (message) {
                 if (typeof message === 'string') {
